@@ -21,6 +21,7 @@
         android:theme="@style/Theme.EggSafeEncyclopediaAllAboutEggs">
         <activity
             android:name=".EggSafeActivity"
+            android:theme="@style/Theme.EggSafeEncyclopediaAllAboutEggs"
             android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>

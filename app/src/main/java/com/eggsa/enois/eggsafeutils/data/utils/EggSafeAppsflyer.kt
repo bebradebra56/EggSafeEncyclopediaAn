@@ -63,37 +63,38 @@ class EggSafeAppsflyer(private val context: Context) {
                         EggSafeApp.EGGSAFE_MAIN_TAG,
                         "AppsFlyer: af_status: ${p0?.get("af_status")}"
                     )
-//                    callback(AppsFlyerState.Succes(p0))
-                    if (p0?.get("af_status") == "Organic") {
-                        val corouteScope = CoroutineScope(Dispatchers.IO)
-                        corouteScope.launch {
-                            try {
-                                delay(5000)
-                                val api = getApi("https://gcdsdk.appsflyer.com/install_data/v4.0/", null)
-                                val request = api.getClient(
-                                    devkey = EGGSAGE_APP_DEV,
-                                    deviceId = getAppsflyerId()
-                                )
-                                val response = request.awaitResponse()
-                                Log.d(
-                                    EggSafeApp.EGGSAFE_MAIN_TAG,
-                                    "AppsFlyer: Conversion after 5 seconds: ${response.body()}"
-                                )
-                                if (response.body()?.get("af_status") == "Organic") {
-                                    callback(AppsFlyerState.Error)
-                                } else {
-                                    callback(AppsFlyerState.Succes(response.body()))
-                                }
-                            } catch (e: Exception) {
-                                Log.d(
-                                    EggSafeApp.EGGSAFE_MAIN_TAG,
-                                    "AppsFlyer: ${e.message}"
-                                )
-                            }
-                        }
-                    } else {
-                        callback(AppsFlyerState.Succes(p0))
-                    }
+                    callback(AppsFlyerState.Succes(p0))
+//                    if (p0?.get("af_status") == "Organic") {
+//                        val corouteScope = CoroutineScope(Dispatchers.IO)
+//                        corouteScope.launch {
+//                            try {
+//                                delay(5000)
+//                                val api = getApi("https://gcdsdk.appsflyer.com/install_data/v4.0/", null)
+//                                val request = api.getClient(
+//                                    devkey = EGGSAGE_APP_DEV,
+//                                    deviceId = getAppsflyerId()
+//                                )
+//                                val response = request.awaitResponse()
+//                                Log.d(
+//                                    EggSafeApp.EGGSAFE_MAIN_TAG,
+//                                    "AppsFlyer: Conversion after 5 seconds: ${response.body()}"
+//                                )
+//                                if (response.body()?.get("af_status") == "Organic") {
+//                                    callback(AppsFlyerState.Error)
+//                                } else {
+//                                    callback(AppsFlyerState.Succes(response.body()))
+//                                }
+//                            } catch (e: Exception) {
+//                                Log.d(
+//                                    EggSafeApp.EGGSAFE_MAIN_TAG,
+//                                    "AppsFlyer: ${e.message}"
+//                                    callback(AppsFlyerState.Error)
+//                                )
+//                            }
+//                        }
+//                    } else {
+//                        callback(AppsFlyerState.Succes(p0))
+//                    }
                 }
 
                 override fun onConversionDataFail(p0: String?) {

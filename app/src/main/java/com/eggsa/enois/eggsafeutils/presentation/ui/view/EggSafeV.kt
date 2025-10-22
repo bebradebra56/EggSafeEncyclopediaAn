@@ -23,6 +23,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -193,20 +194,28 @@ class EggSafeV : Fragment(){
         } else {
             ejvview = dataStore.eggSafeViList.last()
         }
-        ViewCompat.setOnApplyWindowInsetsListener(ejvview) { view, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val displayCutout = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
-
-            // Учитываем и системные бары, и вырезы экрана
-            view.setPadding(
-                maxOf(systemBars.left, displayCutout.left),
-                maxOf(systemBars.top, displayCutout.top),
-                maxOf(systemBars.right, displayCutout.right),
-                maxOf(systemBars.bottom, displayCutout.bottom)
-            )
-
-            insets
-        }
+//        ViewCompat.setOnApplyWindowInsetsListener(ejvview) { view, insets ->
+//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+//            val displayCutout = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
+//            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+//
+//            // Устанавливаем padding для боковых сторон и верха
+//            val topPadding = maxOf(systemBars.top, displayCutout.top)
+//            val leftPadding = maxOf(systemBars.left, displayCutout.left)
+//            val rightPadding = maxOf(systemBars.right, displayCutout.right)
+//
+//            // Для нижней части используем margin вместо padding
+//            val bottomInset = maxOf(systemBars.bottom, displayCutout.bottom, ime.bottom)
+//
+//            view.setPadding(leftPadding, topPadding, rightPadding, 0)
+//
+//            // Изменяем layoutParams для учета нижнего отступа
+//            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+//                bottomMargin = bottomInset
+//            }
+//
+//            WindowInsetsCompat.CONSUMED
+//        }
         return ejvview
     }
 
