@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/egg_safe_graph"
+    app:startDestination="@id/eggSafeLoadFragment">
+
+    <fragment
+        android:id="@+id/eggSafeLoadFragment"
+        android:name="com.eggsa.enois.eggsafeutils.presentation.ui.load.EggSafeLoadFragment"
+        android:label="EggSafeLoadFragment" >
+        <action
+            android:id="@+id/action_eggSafeLoadFragment_to_eggSafeV"
+            app:destination="@id/eggSafeV"
+            app:popUpTo="@id/egg_safe_graph"
+            app:popUpToInclusive="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/eggSafeV"
+        android:name="com.eggsa.enois.eggsafeutils.presentation.ui.view.EggSafeV"
+        android:label="EggSafeV" >
+        <action
+            android:id="@+id/action_eggSafeV_self"
+            app:destination="@id/eggSafeV" />
+    </fragment>
+</navigation>

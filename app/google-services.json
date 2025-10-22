@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "788886522283",
+    "project_id": "eggsafe-encyclopedia",
+    "storage_bucket": "eggsafe-encyclopedia.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:788886522283:android:e9107f49016998bf85eaee",
+        "android_client_info": {
+          "package_name": "com.eggsa.enois"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGGsdkb2I69YGzrzYR4uZd3B2hMCkBafc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
