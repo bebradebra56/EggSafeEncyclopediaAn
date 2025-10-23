@@ -2,6 +2,7 @@ package com.eggsa.enois.eggsafeutils.presentation.app
 
 import android.app.Application
 import android.util.Log
+import android.view.WindowManager
 import com.eggsa.enois.eggsafeutils.data.utils.EggSafeAppsflyer
 import com.eggsa.enois.eggsafeutils.data.utils.EggSafeSystemService
 import com.eggsa.enois.eggsafeutils.presentation.di.eggSafeModule
@@ -42,6 +43,7 @@ class EggSafeApp : Application() {
     }
 
     companion object {
+        var inputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
         val conversionFlow: MutableStateFlow<AppsFlyerState> = MutableStateFlow(AppsFlyerState.Default)
         var EGGSAFE_FIREBASE_PUSH_ID: String? = null
         const val EGGSAFE_MAIN_TAG = "EggSafeMainTag"

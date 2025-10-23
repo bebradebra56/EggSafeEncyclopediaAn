@@ -10,12 +10,15 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.webkit.CookieManager
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.widget.FrameLayout
+import android.widget.ScrollView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -69,6 +72,7 @@ class EggSafeV : Fragment(){
             })
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -106,6 +110,7 @@ class EggSafeV : Fragment(){
 //                }
 //            }
 //        }
+
 
         if (dataStore.eggSafeViList.isEmpty()) {
             ejvview = EggSafeVi(requireContext(), object : EggSafeCallBack {
@@ -187,37 +192,124 @@ class EggSafeV : Fragment(){
                     dataStore.setIsFirstFinishPage()
                 }
 
-            })
+            }, window = requireActivity().window)
             ejvview.fLoad(arguments?.getString(EggSafeLoadFragment.EGGSAFE_SPLASH_DATA) ?: "")
 //            ejvview.fLoad("www.google.com")
             dataStore.eggSafeViList.add(ejvview)
         } else {
             ejvview = dataStore.eggSafeViList.last()
         }
-//        ViewCompat.setOnApplyWindowInsetsListener(ejvview) { view, insets ->
+//        val rootView = requireActivity().findViewById<View>(android.R.id.content)
+//        ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
 //            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 //            val displayCutout = insets.getInsets(WindowInsetsCompat.Type.displayCutout())
 //            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
 //
-//            // Устанавливаем padding для боковых сторон и верха
 //            val topPadding = maxOf(systemBars.top, displayCutout.top)
 //            val leftPadding = maxOf(systemBars.left, displayCutout.left)
 //            val rightPadding = maxOf(systemBars.right, displayCutout.right)
+//            val bottomPadding = maxOf(systemBars.bottom, displayCutout.bottom)  // Только навбар, игнорим IME для no resize
 //
-//            // Для нижней части используем margin вместо padding
-//            val bottomInset = maxOf(systemBars.bottom, displayCutout.bottom, ime.bottom)
+//            view.setPadding(leftPadding, topPadding, rightPadding, bottomPadding)
 //
-//            view.setPadding(leftPadding, topPadding, rightPadding, 0)
-//
-//            // Изменяем layoutParams для учета нижнего отступа
-//            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-//                bottomMargin = bottomInset
+//            // Detect keyboard open (ime.bottom > 0) и scroll WebView к input via JS
+//            if (ime.bottom > 0) {  // Клавиатура visible
+//                // Получи WebView из dataStore (предполагаю, что ejvview доступен; если нет, сделай broadcast или callback)
+//                dataStore.eggSafeViList.lastOrNull()?.let { webView ->
+//                    webView.evaluateJavascript(
+//                        "if (document.activeElement) { document.activeElement.scrollIntoView({behavior: 'smooth', block: 'center', inline: 'nearest'}); }",
+//                        null
+//                    )
+//                }
 //            }
 //
-//            WindowInsetsCompat.CONSUMED
+//            insets  // Возвращаем insets без consume, чтобы другие views видели IME если нужно
 //        }
+//        val screenHeight = resources.displayMetrics.heightPixels
+//        val screenWidth = resources.displayMetrics.widthPixels
+//
+//        val scrollView = ScrollView(requireContext()).apply {
+//            layoutParams = FrameLayout.LayoutParams(
+//                screenWidth,
+//                screenHeight
+//            )
+//            isFillViewport = true  // Растягивает child (WebView) на всю высоту ScrollView
+//
+//            if (ejvview.parent != null) {
+//                (ejvview.parent as ViewGroup).removeView(ejvview)
+//            }
+//            addView(ejvview)  // Добавляем WebView внутрь
+//        }
+//        return scrollView
         return ejvview
     }
+
+//    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+//        super.onViewCreated(view, savedInstanceState)
+//        ejvview.requestFocus()
+//
+//        val rootView = requireActivity().findViewById<View>(android.R.id.content)
+//
+//        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+//            val rect = Rect()
+//            rootView.getWindowVisibleDisplayFrame(rect)
+//
+//            val screenHeight = rootView.rootView.height
+//            val keyboardHeight = screenHeight - rect.bottom
+//            val isKeyboardVisible = keyboardHeight > screenHeight * 0.15
+//
+//            if (isKeyboardVisible) {
+//                // 🔹 JS: проверяем активный элемент
+//                ejvview.evaluateJavascript(
+//                    """
+//                (function() {
+//                    const el = document.activeElement;
+//                    if (!el) return false;
+//                    const rect = el.getBoundingClientRect();
+//                    return { bottom: rect.bottom, viewportHeight: window.innerHeight };
+//                })();
+//                """.trimIndent()
+//                ) { json ->
+//                    try {
+//                        if (json != "null") {
+//                            val obj = org.json.JSONObject(json)
+//                            val elementBottom = obj.getDouble("bottom")
+//                            val viewportHeight = obj.getDouble("viewportHeight")
+//
+//                            // Если элемент перекрыт клавиатурой → имитируем adjustResize
+//                            val isCovered = elementBottom > viewportHeight - keyboardHeight
+//
+//                            if (isCovered) {
+//                                // Scroll или resize WebView по необходимости
+//                                ejvview.updateLayoutParams<FrameLayout.LayoutParams> {
+//                                    height = rect.bottom // имитируем adjustResize
+//                                }
+//
+//                                // Дополнительно, прокручиваем к элементу
+//                                ejvview.evaluateJavascript(
+//                                    "document.activeElement.scrollIntoView({behavior:'smooth', block:'center'});",
+//                                    null
+//                                )
+//                            } else {
+//                                // Не перекрыт → оставляем WebView без изменений
+//                                ejvview.updateLayoutParams<FrameLayout.LayoutParams> {
+//                                    height = FrameLayout.LayoutParams.MATCH_PARENT
+//                                }
+//                            }
+//                        }
+//                    } catch (e: Exception) {
+//                        e.printStackTrace()
+//                    }
+//                }
+//            } else {
+//                // Клавиатура закрыта → WebView на весь экран
+//                ejvview.updateLayoutParams<FrameLayout.LayoutParams> {
+//                    height = FrameLayout.LayoutParams.MATCH_PARENT
+//                }
+//            }
+//        }
+//    }
+
 
 
 

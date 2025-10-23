@@ -5,10 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Message
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
 import android.webkit.CookieManager
+import android.webkit.JavascriptInterface
 import android.webkit.PermissionRequest
 import android.webkit.URLUtil
 import android.webkit.ValueCallback
@@ -19,10 +23,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.Toast
+import com.eggsa.enois.eggsafeutils.presentation.app.EggSafeApp
 
 class EggSafeVi(
     private val context: Context,
-    private val callback: EggSafeCallBack
+    private val callback: EggSafeCallBack,
+    private val window: Window
 ) : WebView(context) {
     init {
 //        fitsSystemWindows = true
@@ -37,7 +43,16 @@ class EggSafeVi(
             @SuppressLint("SetJavaScriptEnabled")
             javaScriptEnabled = true
             cacheMode = WebSettings.LOAD_NO_CACHE
+//            scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
+//            useWideViewPort = true  // Фиксирует viewport на ширину устройства
+//            loadWithOverviewMode = true
         }
+        val screenHeight = resources.displayMetrics.heightPixels
+        val screenWidth = resources.displayMetrics.widthPixels
+        isNestedScrollingEnabled = true
+//        isFocusable = true
+//        isFocusableInTouchMode = true
+
 
 
         layoutParams = FrameLayout.LayoutParams(
@@ -51,6 +66,16 @@ class EggSafeVi(
                 request: WebResourceRequest?,
             ): Boolean {
                 val link = request?.url?.toString() ?: ""
+
+//                if (url?.contains("ninecasino") == true) {
+//                    EggSafeApp.inputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
+//                    Log.d(EggSafeApp.EGGSAFE_MAIN_TAG, "shouldOverrideUrlLoading : ${EggSafeApp.inputMode}")
+//                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+//                } else {
+//                    EggSafeApp.inputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+//                    Log.d(EggSafeApp.EGGSAFE_MAIN_TAG, "shouldOverrideUrlLoading : ${EggSafeApp.inputMode}")
+//                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+//                }
 
                 return if (request?.isRedirect == true) {
                     view?.loadUrl(request?.url.toString())
@@ -76,6 +101,15 @@ class EggSafeVi(
             override fun onPageFinished(view: WebView?, url: String?) {
                 CookieManager.getInstance().flush()
                 callback.onFirstPageFinished()
+                if (url?.contains("ninecasino") == true) {
+                    EggSafeApp.inputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
+                    Log.d(EggSafeApp.EGGSAFE_MAIN_TAG, "onPageFinished : ${EggSafeApp.inputMode}")
+                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+                } else {
+                    EggSafeApp.inputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+                    Log.d(EggSafeApp.EGGSAFE_MAIN_TAG, "onPageFinished : ${EggSafeApp.inputMode}")
+                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                }
             }
 
 
@@ -106,6 +140,7 @@ class EggSafeVi(
         })
     }
 
+
     fun fLoad(link: String) {
         super.loadUrl(link)
     }
@@ -118,7 +153,7 @@ class EggSafeVi(
         if (resultMsg == null) return
         if (resultMsg.obj != null && resultMsg.obj is WebView.WebViewTransport) {
             val transport = resultMsg.obj as WebView.WebViewTransport
-            val windowWebView = EggSafeVi(context, callback)
+            val windowWebView = EggSafeVi(context, callback, window)
             transport.webView = windowWebView
             resultMsg.sendToTarget()
             callback.handleCreateWebWindowRequest(windowWebView)
