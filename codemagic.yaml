@@ -1,0 +1,22 @@
+workflows:
+  android_release:
+    name: Android release workflow
+    environment:
+      android_signing:
+        -egg_safe_android_keystore
+      groups:
+        - google_credentials
+      vars:
+        PACKAGE_NAME: "com.eggsa.enois"
+    scripts:
+      - name: Set Android SDK location
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > "$CM_BUILD_DIR/local.properties"
+      - name: Build Android Release
+        script: |
+          ./gradlew bundleRelease
+    artifacts:
+      - app/build/outputs/**/*.aab
+    google_play:
+      credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
+      track: production
