@@ -3,7 +3,7 @@ workflows:
     name: Android release workflow
     environment:
       android_signing:
-        -egg_safe_android_keystore
+        - egg_safe_android_keystore
       groups:
         - google_credentials
       vars:
@@ -17,6 +17,7 @@ workflows:
           ./gradlew bundleRelease
     artifacts:
       - app/build/outputs/**/*.aab
-    google_play:
-      credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
-      track: production
+    publishing:
+      google_play:
+        credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
+        track: production
