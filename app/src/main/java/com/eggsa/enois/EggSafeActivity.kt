@@ -24,21 +24,6 @@ import org.koin.android.ext.android.inject
 
 class EggSafeActivity : AppCompatActivity() {
 
-    lateinit var eggSafePhoto: Uri
-    var eggSafeFilePathFromChrome: ValueCallback<Array<Uri>>? = null
-
-    val eggSafeTakeFile = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) {
-        eggSafeFilePathFromChrome?.onReceiveValue(arrayOf(it ?: Uri.EMPTY))
-    }
-
-    val eggSafeTakePhoto = registerForActivityResult(ActivityResultContracts.TakePicture()) {
-        if (it) {
-            eggSafeFilePathFromChrome?.onReceiveValue(arrayOf(eggSafePhoto))
-        } else {
-            eggSafeFilePathFromChrome?.onReceiveValue(null)
-        }
-    }
-
     private val eggSafePushHandler by inject<EggSafePushHandler>()
 
 
@@ -46,16 +31,10 @@ class EggSafeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(EggSafeApp.EGGSAFE_MAIN_TAG, "onCreate : ${EggSafeApp.inputMode}")
         setupSystemBars()
-//        enableEdgeToEdge()
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContentView(R.layout.activity_egg_safe)
         val rootView = findViewById<View>(android.R.id.content)
-//        ViewCompat.setOnApplyWindowInsetsListener(rootView) { v, insets ->
-//            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-//            insets
-//        }
-//        GlobalLayoutUtil().assistActivity(this)
+        GlobalLayoutUtil().eggSafeAssistActivity(this)
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             val displayCutout = insets.getInsets(WindowInsetsCompat.Type.displayCutout())

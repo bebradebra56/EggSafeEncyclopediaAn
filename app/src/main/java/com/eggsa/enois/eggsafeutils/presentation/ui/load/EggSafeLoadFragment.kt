@@ -138,6 +138,6 @@ class EggSafeLoadFragment : Fragment(R.layout.fragment_load_eggsafe) {
     }
 
     companion object {
-        const val EGGSAFE_SPLASH_DATA = "crashSplashData"
+        const val EGGSAFE_SPLASH_DATA = "eggSafeData"
     }
 }

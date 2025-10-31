@@ -6,13 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Message
 import android.util.Log
-import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
 import android.webkit.CookieManager
-import android.webkit.JavascriptInterface
 import android.webkit.PermissionRequest
 import android.webkit.URLUtil
 import android.webkit.ValueCallback
@@ -26,12 +23,18 @@ import android.widget.Toast
 import com.eggsa.enois.eggsafeutils.presentation.app.EggSafeApp
 
 class EggSafeVi(
-    private val context: Context,
-    private val callback: EggSafeCallBack,
-    private val window: Window
-) : WebView(context) {
+    private val eggSafeContext: Context,
+    private val eggSafeCallback: EggSafeCallBack,
+    private val eggSafeWindow: Window
+) : WebView(eggSafeContext) {
+
+    private var fileChooserHandler: ((ValueCallback<Array<Uri>>?) -> Unit)? = null
+
+    fun setFileChooserHandler(handler: (ValueCallback<Array<Uri>>?) -> Unit) {
+        this.fileChooserHandler = handler
+    }
+
     init {
-//        fitsSystemWindows = true
         val webSettings = settings
         webSettings.apply {
             setSupportMultipleWindows(true)
@@ -39,20 +42,13 @@ class EggSafeVi(
             allowContentAccess = true
             domStorageEnabled = true
             javaScriptCanOpenWindowsAutomatically = true
-            userAgentString = WebSettings.getDefaultUserAgent(context).replace("; wv)", "").replace("Version/4.0 ", "")
+            userAgentString = WebSettings.getDefaultUserAgent(eggSafeContext).replace("; wv)", "")
+                .replace("Version/4.0 ", "")
             @SuppressLint("SetJavaScriptEnabled")
             javaScriptEnabled = true
             cacheMode = WebSettings.LOAD_NO_CACHE
-//            scrollBarStyle = View.SCROLLBARS_INSIDE_OVERLAY
-//            useWideViewPort = true  // Фиксирует viewport на ширину устройства
-//            loadWithOverviewMode = true
         }
-        val screenHeight = resources.displayMetrics.heightPixels
-        val screenWidth = resources.displayMetrics.widthPixels
         isNestedScrollingEnabled = true
-//        isFocusable = true
-//        isFocusableInTouchMode = true
-
 
 
         layoutParams = FrameLayout.LayoutParams(
@@ -67,31 +63,18 @@ class EggSafeVi(
             ): Boolean {
                 val link = request?.url?.toString() ?: ""
 
-//                if (url?.contains("ninecasino") == true) {
-//                    EggSafeApp.inputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
-//                    Log.d(EggSafeApp.EGGSAFE_MAIN_TAG, "shouldOverrideUrlLoading : ${EggSafeApp.inputMode}")
-//                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-//                } else {
-//                    EggSafeApp.inputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-//                    Log.d(EggSafeApp.EGGSAFE_MAIN_TAG, "shouldOverrideUrlLoading : ${EggSafeApp.inputMode}")
-//                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-//                }
-
                 return if (request?.isRedirect == true) {
                     view?.loadUrl(request?.url.toString())
                     true
-                }
-                else if (URLUtil.isNetworkUrl(link)) {
+                } else if (URLUtil.isNetworkUrl(link)) {
                     false
-                } else if(link.startsWith("intent")){
-                    intentStart(link)
-                    true
                 } else {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
                     try {
-                        context.startActivity(intent)
+                        eggSafeContext.startActivity(intent)
                     } catch (e: Exception) {
-                        Toast.makeText(context, "This application not found", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(eggSafeContext, "This application not found", Toast.LENGTH_SHORT)
+                            .show()
                     }
                     true
                 }
@@ -100,15 +83,15 @@ class EggSafeVi(
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 CookieManager.getInstance().flush()
-                callback.onFirstPageFinished()
+                eggSafeCallback.eggSafeOnFirstPageFinished()
                 if (url?.contains("ninecasino") == true) {
                     EggSafeApp.inputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
                     Log.d(EggSafeApp.EGGSAFE_MAIN_TAG, "onPageFinished : ${EggSafeApp.inputMode}")
-                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+                    eggSafeWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
                 } else {
                     EggSafeApp.inputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
                     Log.d(EggSafeApp.EGGSAFE_MAIN_TAG, "onPageFinished : ${EggSafeApp.inputMode}")
-                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                    eggSafeWindow.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
                 }
             }
 
@@ -117,7 +100,7 @@ class EggSafeVi(
 
         super.setWebChromeClient(object : WebChromeClient() {
             override fun onPermissionRequest(request: PermissionRequest?) {
-                callback.onPermissionRequest(request)
+                eggSafeCallback.eggSafeOnPermissionRequest(request)
             }
 
             override fun onShowFileChooser(
@@ -125,9 +108,10 @@ class EggSafeVi(
                 filePathCallback: ValueCallback<Array<Uri>>?,
                 fileChooserParams: WebChromeClient.FileChooserParams?,
             ): Boolean {
-                callback.onShowFileChooser(filePathCallback)
+                fileChooserHandler?.invoke(filePathCallback)
                 return true
             }
+
             override fun onCreateWindow(
                 view: WebView?,
                 isDialog: Boolean,
@@ -141,7 +125,7 @@ class EggSafeVi(
     }
 
 
-    fun fLoad(link: String) {
+    fun eggSafeFLoad(link: String) {
         super.loadUrl(link)
     }
 
@@ -153,31 +137,12 @@ class EggSafeVi(
         if (resultMsg == null) return
         if (resultMsg.obj != null && resultMsg.obj is WebView.WebViewTransport) {
             val transport = resultMsg.obj as WebView.WebViewTransport
-            val windowWebView = EggSafeVi(context, callback, window)
+            val windowWebView = EggSafeVi(eggSafeContext, eggSafeCallback, eggSafeWindow)
             transport.webView = windowWebView
             resultMsg.sendToTarget()
-            callback.handleCreateWebWindowRequest(windowWebView)
+            eggSafeCallback.eggSafeHandleCreateWebWindowRequest(windowWebView)
         }
     }
 
-    private fun intentStart(link: String) {
-        var scheme = ""
-        var token = ""
-        val part1 = link.split("#").first()
-        val part2 = link.split("#").last()
-        token = part1.split("?").last()
-        part2.split(";").forEach {
-            if (it.startsWith("scheme")) {
-                scheme = it.split("=").last()
-            }
-        }
-        val finalUriString = "$scheme://receiveetransfer?$token"
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(finalUriString))
-        try {
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            Toast.makeText(context, "This application not found", Toast.LENGTH_SHORT).show()
-        }
-    }
 
 }

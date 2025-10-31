@@ -6,11 +6,10 @@ import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 
 interface EggSafeCallBack {
-    fun handleCreateWebWindowRequest(EggSafeVi: EggSafeVi)
+    fun eggSafeHandleCreateWebWindowRequest(eggSafeVi: EggSafeVi)
 
-    fun onPermissionRequest(request: PermissionRequest?)
+    fun eggSafeOnPermissionRequest(eggSafeRequest: PermissionRequest?)
 
-    fun onShowFileChooser(filePathCallback: ValueCallback<Array<Uri>>?)
 
-    fun onFirstPageFinished()
+    fun eggSafeOnFirstPageFinished()
 }

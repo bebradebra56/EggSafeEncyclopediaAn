@@ -10,9 +10,9 @@ class EggSafeSharedPreference(context: Context) {
         get() = prefs.getString(EGGSAFE_SAVED_URL, "") ?: ""
         set(value) = prefs.edit { putString(EGGSAFE_SAVED_URL, value) }
 
-    var expired : Int
-        get() = prefs.getInt(EFFSAFE_EXPIRED, 0)
-        set(value) = prefs.edit { putInt(EFFSAFE_EXPIRED, value) }
+    var expired : Long
+        get() = prefs.getLong(EFFSAFE_EXPIRED, 0L)
+        set(value) = prefs.edit { putLong(EFFSAFE_EXPIRED, value) }
 
     var appState: Int
         get() = prefs.getInt(EGGSAGE_APPLICATION_STATE, 0)

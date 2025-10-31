@@ -1,16 +1,20 @@
 package com.eggsa.enois.eggsafeutils.presentation.ui.view
 
+import android.annotation.SuppressLint
+import android.widget.FrameLayout
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 class EggSafeDataStore : ViewModel(){
     val eggSafeViList: MutableList<EggSafeVi> = mutableListOf()
-    private val _isFirstFinishPage: MutableStateFlow<Boolean> = MutableStateFlow(true)
-//    val isFirstFinishPage: StateFlow<Boolean> = _isFirstFinishPage.asStateFlow()
+    private val _eggSafeIsFirstFinishPage: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    var isFirstCreate = true
+    @SuppressLint("StaticFieldLeak")
+    lateinit var containerView: FrameLayout
+    @SuppressLint("StaticFieldLeak")
+    lateinit var eggSafeView: EggSafeVi
 
-    fun setIsFirstFinishPage() {
-        _isFirstFinishPage.value = false
+    fun eggSafeSetIsFirstFinishPage() {
+        _eggSafeIsFirstFinishPage.value = false
     }
 }

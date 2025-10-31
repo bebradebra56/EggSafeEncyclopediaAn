@@ -38,7 +38,7 @@ class EggSafeLoadViewModel(
                                     _eggSafeHomeScreenState.value = EggSafeHomeScreenState.EggSafeError
                                     getApps = true
                                 }
-                                is AppsFlyerState.Succes -> {
+                                is AppsFlyerState.Success -> {
                                     if (!getApps) {
                                         getData(it.data)
                                         getApps = true
@@ -63,7 +63,7 @@ class EggSafeLoadViewModel(
                                         _eggSafeHomeScreenState.value = EggSafeHomeScreenState.Success(eggSafeSharedPreference.savedUrl)
                                         getApps = true
                                     }
-                                    is AppsFlyerState.Succes -> {
+                                    is AppsFlyerState.Success -> {
                                         if (!getApps) {
                                             getData(it.data)
                                             getApps = true
