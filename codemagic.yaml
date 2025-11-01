@@ -4,8 +4,6 @@ workflows:
     environment:
       android_signing:
         - egg_safe_android_keystore
-      groups:
-        - google_credentials
       vars:
         PACKAGE_NAME: "com.eggsa.enois"
     scripts:
@@ -20,7 +18,3 @@ workflows:
           ./gradlew bundleRelease
     artifacts:
       - app/build/outputs/**/*.aab
-    publishing:
-      google_play:
-        credentials: $GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS
-        track: production
